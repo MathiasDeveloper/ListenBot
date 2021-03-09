@@ -2,8 +2,6 @@ const fs = require('fs');
 const discord = require('discord.js');
 const ApiHelper = require('./helper/apiHelper');
 const dotenv = require('dotenv');
-dotenv.config();
-
 
 const { parse } = require('path');
 
@@ -13,7 +11,7 @@ client.commands = new discord.Collection();
 const api = new ApiHelper();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-const instance = api.create(process.env.ACCESS_TOKEN);
+const instance = api.create(process.env.access_token);
 
 
 
@@ -36,8 +34,8 @@ client.once('ready', () => {
 });
 
 client.on('message', function(message){
-	if (!message.content.startsWith(process.env.PREFIX) || message.author.bot) return;
-	const args = message.content.slice(process.env.PREFIX).trim().split(/ +/);
+	if (!message.content.startsWith(process.env.prefix) || message.author.bot) return;
+	const args = message.content.slice(process.env.prefix).trim().split(/ +/);
 	const command = args.shift().toLowerCase();
     try {
         client.commands.get(command).execute(message, args);
@@ -47,7 +45,7 @@ client.on('message', function(message){
     }
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.token);
 
 
 
