@@ -3,7 +3,7 @@
 const { default: axios } = require('axios');
 const Axios = require('axios');
 const BASE_URL = "https://api.nitrado.net";
-const TIME_OUT = 1000;
+const TIME_OUT = 10000;
 
 
 
