@@ -34,7 +34,7 @@ instance.get('/services').then(response => {
 client.once('ready', () => {
     const channelForLog = client.channels.cache.find(channels => channels.name === 'test');
 	console.log(`Ready for use!`);
-    
+
     let absolutePath = instance.get('/services/' + id + '/gameservers').then(response => {
         return response.data.data.gameserver.game_specific.path;
     });
@@ -44,7 +44,7 @@ client.once('ready', () => {
     })
 
     logFile.then(function(pathLog) {
-        let remove = 'dayzxb';
+        let remove = 'dayzxb/';
         absolutePath.then(function(path){
             let endpoint = '/services/' + id  + '/gameservers/file_server/download?file=' + path + pathLog.slice(remove.length);
             console.log(endpoint);
@@ -58,8 +58,8 @@ client.once('ready', () => {
          });
     });
 
-    setInterval(loop, 1800000);
-    function loop() {
+    setInterval(getLog, 600000);
+    function getLog(){
         let absolutePath = instance.get('/services/' + id + '/gameservers').then(response => {
             return response.data.data.gameserver.game_specific.path;
         });
@@ -69,7 +69,7 @@ client.once('ready', () => {
         })
     
         logFile.then(function(pathLog) {
-            let remove = 'dayzxb';
+            let remove = 'dayzxb/';
             absolutePath.then(function(path){
                 let endpoint = '/services/' + id  + '/gameservers/file_server/download?file=' + path + pathLog.slice(remove.length);
                 console.log(endpoint);
@@ -82,7 +82,10 @@ client.once('ready', () => {
                 });
              });
         });
-    
+    }
+
+    setInterval(loop, 1800000);
+    function loop() {
         fs.readFile('logDayz.log', 'utf-8', function(err, data) {
             var feedConnected = data.match(/((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm);
             var regex = /((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm;
