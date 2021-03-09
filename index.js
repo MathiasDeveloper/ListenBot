@@ -92,10 +92,9 @@ client.once('ready', () => {
             var match = regex.exec(feedConnected);
             var logged = "";
             while (match != null) {
-                logged += match[1] + " | Player : " + match[2] + ' ID : ' + match[3] + ' is connected on server\n';
+                channelForLog.send(match[1] + " | Player : " + match[2] + ' ID : ' + match[3] + ' is connected on server');
                 match = regex.exec(feedConnected);
               }
-              channelForLog.send(logged);
         });
     }
     
