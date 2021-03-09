@@ -2,6 +2,7 @@
 const ApiHelper = require('./../helper/apiHelper');
 const dotenv = require('dotenv');
 const fs = require('fs');
+const https = require('https');
 dotenv.config();
 
 const api = new ApiHelper();
