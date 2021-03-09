@@ -34,6 +34,29 @@ instance.get('/services').then(response => {
 client.once('ready', () => {
     const channelForLog = client.channels.cache.find(channels => channels.name === 'test');
 	console.log(`Ready for use!`);
+    
+    let absolutePath = instance.get('/services/' + id + '/gameservers').then(response => {
+        return response.data.data.gameserver.game_specific.path;
+    });
+
+    let logFile = instance.get('/services/' + id + '/gameservers').then(response => {
+        return response.data.data.gameserver.game_specific.log_files[0];
+    })
+
+    logFile.then(function(pathLog) {
+        let remove = 'dayzxb';
+        absolutePath.then(function(path){
+            let endpoint = '/services/' + id  + '/gameservers/file_server/download?file=' + path + pathLog.slice(remove.length);
+            console.log(endpoint);
+            let url = instance.get(endpoint).then(response => {
+                console.log(response.data.data.token.url);
+                const file = fs.createWriteStream('logDayz.log');
+                https.get(response.data.data.token.url, function(response) {
+                    response.pipe(file);
+                })
+            });
+         });
+    });
 
     setInterval(loop, 1800000);
     function loop() {
