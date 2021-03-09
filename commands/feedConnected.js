@@ -40,13 +40,12 @@ module.exports = {
         });
     
         fs.readFile('logDayz.log', 'utf-8', function(err, data) {
-            var feedConnected = data.match(/((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm);
             var regex = /((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm;
-            var match = regex.exec(feedConnected);
+            var match = regex.exec(data);
             var logged = "";
             while (match != null) {
                 logged += match[1] + " | Player : " + match[2] + ' ID : ' + match[3] + ' is connected on server\n';
-                match = regex.exec(feedConnected);
+                match = regex.exec(data);
               }
               message.channel.send(logged);
         });
