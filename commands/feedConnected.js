@@ -1,8 +1,10 @@
 'use-strict';
 const ApiHelper = require('./../helper/apiHelper');
 const dotenv = require('dotenv');
+const discord = require('discord.js');
 const fs = require('fs');
 const https = require('https');
+const { description } = require('./feedDismantel');
 dotenv.config();
 
 const api = new ApiHelper();
@@ -21,39 +23,20 @@ module.exports = {
         instance.get('/services').then(response => {
             id = response.data.data.services[0]['id'];
         });
-
-		let absolutePath = instance.get('/services/' + id + '/gameservers').then(response => {
-            return response.data.data.gameserver.game_specific.path;
-        });
-    
-        let logFile = instance.get('/services/' + id + '/gameservers').then(response => {
-            return response.data.data.gameserver.game_specific.log_files[0];
-        })
-    
-        logFile.then(function(pathLog) {
-            let remove = 'dayzxb/';
-            absolutePath.then(function(path){
-                let endpoint = '/services/' + id  + '/gameservers/file_server/download?file=' + path + pathLog.slice(remove.length);
-                console.log(endpoint);
-                let url = instance.get(endpoint).then(response => {
-                    console.log(response.data.data.token.url);
-                    const file = fs.createWriteStream('logDayz.log');
-                    https.get(response.data.data.token.url, function(response) {
-                        response.pipe(file);
-                    })
-                });
-             });
-        });
     
         fs.readFile('logDayz.log', 'utf-8', function(err, data) {
             var feedConnected = data.match(/((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm);
             var regex = /((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm;
             var match = regex.exec(feedConnected);
-            var logged = "", logged1 = "";
             while (match != null) {
-                message.channel.send(match[1] + " | Player : " + match[2] + ' ID : ' + match[3] + ' is connected on server');
-                match = regex.exec(feedConnected);
-              }
+                const embed = new discord.MessageEmbed()
+                    .setColor('#0099ff')
+                    .setTitle('Connected player')
+                    .setAuthor('ListenBot')
+                    .addField('Connect on server', match[1] + " | Player : " + match[2] + '\n ID : ' + match[3], true)
+                    message.channel.send(embed);
+                    match = regex.exec(feedConnected);
+                } 
         });
 	},
 };

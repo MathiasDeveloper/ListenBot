@@ -24,6 +24,7 @@ for (const file of commandFiles) {
 	client.commands.set(command.name, command);
 }
 
+// Getting ID nitrado services
 let id;
 instance.get('/services').then(response => {
     id = response.data.data.services[0]['id'];
@@ -32,32 +33,8 @@ instance.get('/services').then(response => {
 
 
 client.once('ready', () => {
-    const channelForLog = client.channels.cache.find(channels => channels.name === 'test');
+    const channelForLog = client.channels.cache.find(channels => channels.name === 'player-connect');
 	console.log(`Ready for use!`);
-
-    let absolutePath = instance.get('/services/' + id + '/gameservers').then(response => {
-        return response.data.data.gameserver.game_specific.path;
-    });
-
-    let logFile = instance.get('/services/' + id + '/gameservers').then(response => {
-        return response.data.data.gameserver.game_specific.log_files[0];
-    })
-
-    logFile.then(function(pathLog) {
-        let remove = 'dayzxb/';
-        absolutePath.then(function(path){
-            let endpoint = '/services/' + id  + '/gameservers/file_server/download?file=' + path + pathLog.slice(remove.length);
-            console.log(endpoint);
-            let url = instance.get(endpoint).then(response => {
-                console.log(response.data.data.token.url);
-                const file = fs.createWriteStream('logDayz.log');
-                https.get(response.data.data.token.url, function(response) {
-                    response.pipe(file);
-                })
-            });
-         });
-    });
-
     setInterval(getLog, 600000);
     function getLog(){
         let absolutePath = instance.get('/services/' + id + '/gameservers').then(response => {
@@ -66,7 +43,7 @@ client.once('ready', () => {
     
         let logFile = instance.get('/services/' + id + '/gameservers').then(response => {
             return response.data.data.gameserver.game_specific.log_files[0];
-        })
+        }).catch(error => console.log(error));
     
         logFile.then(function(pathLog) {
             let remove = 'dayzxb/';
@@ -80,11 +57,11 @@ client.once('ready', () => {
                         response.pipe(file);
                     })
                 });
-             });
+             }).catch(error => console.log(error));
         });
     }
 
-    setInterval(loop, 1800000);
+    setInterval(loop, 5000);
     function loop() {
         fs.readFile('logDayz.log', 'utf-8', function(err, data) {
             var feedConnected = data.match(/((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))\s\|\sPlayer\s(".*?")\sis\sconnected.\(id=(.*?)\)/gm);
@@ -92,23 +69,17 @@ client.once('ready', () => {
             var match = regex.exec(feedConnected);
             var logged = "";
             while (match != null) {
-                channelForLog.send(match[1] + " | Player : " + match[2] + ' ID : ' + match[3] + ' is connected on server');
+                // channelForLog.send(match[1] + " | Player : " + match[2] + ' ID : ' + match[3] + ' is connected on server');
+                const embed = new discord.MessageEmbed()
+                    .setColor('#0099ff')
+                    .setTitle('Connected player')
+                    .setAuthor('ListenBot')
+                    .addField('Connect on server', match[1] + " | Player : " + match[2] + '\n ID : ' + match[3], true)
+                channelForLog.send(embed)
                 match = regex.exec(feedConnected);
               }
         });
     }
-    
-    
-    // setInterval(loop, 5000);
-    // function loop() {
-    //     absolutePath.then(function(path){
-    //        let endpoint = '/services/' + id  + '/gameservers/file_server/download?file=' + path;
-    //        console.log(endpoint);
-    //        let url = instance.get(endpoint).then(response => {
-    //            console.log(response);
-    //        });
-    //     });
-    // }
 });
 
 
